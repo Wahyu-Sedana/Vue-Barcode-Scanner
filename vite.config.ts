@@ -12,6 +12,7 @@ export default defineConfig({
     vueDevTools(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: false,
       includeAssets: ["icon.svg"],
       manifest: {
         name: "Scanly — Product Barcode Scanner",
