@@ -29,8 +29,9 @@ export class CameraController {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: facing },
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        advanced: [{ focusMode: 'continuous' } as unknown as MediaTrackConstraintSet],
       },
       audio: false,
     })

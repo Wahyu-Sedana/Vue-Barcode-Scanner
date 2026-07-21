@@ -34,7 +34,7 @@ export class NativeBarcodeScanner implements BarcodeScanner {
     if (typeof window === 'undefined' || !window.BarcodeDetector) return false
     try {
       const formats = await window.BarcodeDetector.getSupportedFormats()
-      return SUPPORTED_FORMATS.some((format) => formats.includes(format))
+      return SUPPORTED_FORMATS.every((format) => formats.includes(format))
     } catch {
       return false
     }
