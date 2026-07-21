@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import ScannerLaser from './ScannerLaser.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    status?: 'scanning' | 'detected' | 'idle'
+    status?: 'scanning' | 'checking' | 'valid' | 'invalid'
     instruction?: string
   }>(),
   {
@@ -11,6 +12,19 @@ withDefaults(
     instruction: 'Align the barcode or QR code within the frame',
   },
 )
+
+const toneClasses = computed(() => {
+  switch (props.status) {
+    case 'valid':
+      return 'ring-success bg-success/10'
+    case 'invalid':
+      return 'ring-error bg-error/10'
+    case 'checking':
+      return 'ring-primary bg-primary/10 animate-pulse'
+    default:
+      return ''
+  }
+})
 </script>
 
 <template>
@@ -28,12 +42,7 @@ withDefaults(
       <ScannerLaser :active="status === 'scanning'" />
 
       <Transition name="scale">
-        <div
-          v-if="status === 'detected'"
-          class="absolute inset-0 flex items-center justify-center rounded-[32px] ring-4 ring-success"
-        >
-          <span class="absolute inset-0 rounded-[32px] bg-success/10" />
-        </div>
+        <div v-if="status !== 'scanning'" class="absolute inset-0 rounded-[32px] ring-4" :class="toneClasses" />
       </Transition>
     </div>
 
