@@ -25,6 +25,14 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const verifyState = ref<VerifyState>('scanning')
 const activeBarcode = ref('')
 const resultMessage = ref('')
+const cameraInfo = ref('')
+
+function updateCameraInfo() {
+  const video = videoRef.value
+  if (video?.videoWidth && video.videoHeight) {
+    cameraInfo.value = `${video.videoWidth}×${video.videoHeight}`
+  }
+}
 
 const { permission, start, pause, resume, toggleFlash, switchCamera } = useBarcodeScanner({
   onDetect: handleDetect,
@@ -80,7 +88,13 @@ async function launchCamera() {
   historyStore.load()
   if (videoRef.value) {
     await start(videoRef.value)
+    updateCameraInfo()
   }
+}
+
+async function handleSwitchCamera() {
+  await switchCamera()
+  updateCameraInfo()
 }
 
 onMounted(launchCamera)
@@ -108,6 +122,11 @@ onMounted(launchCamera)
           <component :is="scannerStore.flashOn ? BoltSolid : BoltOutline" class="h-5 w-5" />
         </button>
       </div>
+
+      <!-- Diagnostic readout: which engine + actual camera resolution granted -->
+      <p class="absolute right-3 top-16 z-10 font-mono text-[10px] text-white/40">
+        {{ scannerStore.engine ?? '…' }} · {{ cameraInfo || '…' }}
+      </p>
 
       <!-- Last scanned barcode strip -->
       <Transition name="fade">
@@ -138,7 +157,7 @@ onMounted(launchCamera)
           type="button"
           aria-label="Switch camera"
           class="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition active:scale-90"
-          @click="switchCamera"
+          @click="handleSwitchCamera"
         >
           <ArrowPathRoundedSquareIcon class="h-6 w-6" />
         </button>

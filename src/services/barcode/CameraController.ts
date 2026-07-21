@@ -26,15 +26,19 @@ export class CameraController {
   async attach(videoElement: HTMLVideoElement, facing: CameraFacing = 'environment'): Promise<MediaStream> {
     this.videoElement = videoElement
     this.facing = facing
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { ideal: facing },
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        advanced: [{ focusMode: 'continuous' } as unknown as MediaTrackConstraintSet],
-      },
-      audio: false,
-    })
+
+    const videoConstraints: MediaTrackConstraints = {
+      facingMode: { ideal: facing },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+    }
+
+    const supported = navigator.mediaDevices.getSupportedConstraints?.() as Record<string, boolean> | undefined
+    if (supported?.focusMode) {
+      videoConstraints.advanced = [{ focusMode: 'continuous' } as unknown as MediaTrackConstraintSet]
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false })
     this.stream = stream
     videoElement.srcObject = stream
     await videoElement.play().catch(() => undefined)
